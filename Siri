@@ -1,0 +1,62 @@
+import pyttsx3
+import speech_recognition as sr
+import datetime
+import webbrowser
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if 0 <= hour < 12:
+        speak('Good Morning')
+    elif 12 <= hour < 18:
+        speak('Good Afternoon')
+    else:
+        speak('Good Evening')
+
+    speak('I am Gyashri')
+    speak('how can I help you')
+def takeCommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print('Listening...')
+        r.pause_threshold = 1
+        audio = r.listen(source)
+
+    try:
+        print('Recognizing...')
+        query = r.recognize_google(audio, language='en')
+        print(f"User said: {query}\n")
+        speak(query)
+    except Exception as e:
+        print('Say that again, please.')
+        return "None"
+    return query
+
+if _name_ == "_main_":
+    wishMe()
+    while True:
+        query = takeCommand().lower()
+
+        if 'open wikipedia' in query:
+            speak('Please specify the topic you want to search for on Wikipedia.')
+            topic = takeCommand()
+            if topic != "None":
+                wikipedia_url = f"https://en.wikipedia.org/wiki/{topic}"
+                webbrowser.open(wikipedia_url)
+        elif 'open youtube' in query:
+            url = "https://www.youtube.com"
+            webbrowser.open(url)
+        elif 'exit' in query or 'quit' in query:
+            speak('Are you sure you want to exit?')
+            exit_response = takeCommand().lower()
+            if 'yes' in exit_response:
+                speak('Goodbye')
+                break
+            elif 'no' in exit_response:
